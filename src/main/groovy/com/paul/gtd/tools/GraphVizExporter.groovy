@@ -96,7 +96,7 @@ public class GraphVizExporter {
 
 		 // "/Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome".execute();
 
-		 "/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome chinapws/2016-10-29_12_23_40chinapws.jsonout.dot.svg".execute();
+		 "/Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome chinapws/2016-10-29_12_23_40chinapws.jsonout.dot.svg".execute();
 
 	}
 
