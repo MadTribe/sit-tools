@@ -252,6 +252,7 @@ ${space}(L)ink = Link to other nodes
 ${space}(W)worth (relative) set relative worth of this.
 ${space}(R)eport print a summary Report.
 ${space}(Q)uit = quit this item.
+${space}(XX)delete = delete this item (not yet implemented).
 		"""
 
 		def option = System.console().readLine '? ';
@@ -293,6 +294,11 @@ ${space}(Q)uit = quit this item.
        if (option == "r"){
             doSummaryReport(item);
        }
+
+			 if (option == "xx"){
+						def confirm = Display.getInput("Are yoiu sure you want to delete ${item.path()}")
+
+			 }
 		} else {
 			 println "Will look at this later.\n\n";
 		}

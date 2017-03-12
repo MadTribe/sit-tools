@@ -1,6 +1,7 @@
 package com.paul.gtd.tools;
 import static com.paul.gtd.tools.Time.*;
 import com.paul.gtd.model.*;
+import java.nio.file.*;
 
 public class GraphVizExporter {
 	def nodeColor = null;
@@ -62,21 +63,35 @@ public class GraphVizExporter {
 
 	}
 
+	def bashisePath(path){
+		def ret = path.replaceAll(" ","\\\\ ");
+		return ret;
+	}
+
+	def getParentFolder(fileName){
+		def file = new File(fileName);
+		def path = file.getParentFile().getCanonicalPath();
+		return path;
+	}
+
 	def createFilename(fileName){
-			def file = new File(fileName);
-			def path = file.getParentFile().getCanonicalPath();
+		def file = new File(fileName);
+		def path = file.getParentFile().getCanonicalPath();
 			def name = file.name;
 	    String timestamp = new Date().format( 'yyyy-MM-dd_hh_mm_ss');
 
-			return path + "/" + timestamp + name + "out.dot";
+			def ret = path + "/" + timestamp + name + "out.dot";
+			return ret;
 	}
 
 
 	def generateUndirectedGraphFromDot(dataModel){
 		def outfile = createFilename(dataModel.fileName);
 		saveAsDot(dataModel, outfile)
-		println outfile;
-		("fdp " + outfile + " -Tsvg  -O").execute();
+
+		def cmd = ["fdp", outfile, "-Tsvg", "-O"];
+		println cmd;
+		(cmd).execute().consumeProcessOutput(System.out, System.err);
 
 		displayImage(outfile);
 	}
@@ -84,8 +99,9 @@ public class GraphVizExporter {
 	def generateDigraphFromDot(dataModel){
 		def outfile = createFilename(dataModel.fileName);
 		saveAsDot(dataModel, outfile)
-		println outfile;
-		("dot " + outfile + " -Tsvg  -O").execute();
+		def cmd = ["dot", outfile, "-Tsvg", "-O"];
+		println cmd;
+		(cmd).execute().consumeProcessOutput(System.out, System.err);
 
 		displayImage(outfile);
 	}
@@ -94,9 +110,30 @@ public class GraphVizExporter {
 		def file = new File(outfile + ".svg");
 		def path = file.toURI();
 
-		 // "/Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome".execute();
 
-		 "/Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome chinapws/2016-10-29_12_23_40chinapws.jsonout.dot.svg".execute();
+		 ['/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', path].execute().consumeProcessOutput(System.out, System.err)
+
+
+		 def to = Paths.get(outfile)
+		 def from = Paths.get(getParentFolder(outfile))
+
+		 def latest = from.resolve("latest.svg");
+
+		 try {
+		     Files.delete(latest);
+		 } catch (Exception x) {
+		     System.err.format("%s: no such" + " file or directory%n", path);
+		 }
+
+
+		 try {
+			 Files.createSymbolicLink( from.resolve("latest.svg"), file.toPath());
+		 } catch (Exception x) {
+		 		System.err.format("%s: no such" + " file or directory%n", path);
+		 }
+
+
+
 
 	}
 
