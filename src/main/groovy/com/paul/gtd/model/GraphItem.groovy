@@ -7,6 +7,9 @@ public class GraphItem {
 	private static int unique = 1;
 	def id;
 	def fullName;
+	def url = null;
+	def boolean deleted = false;
+
 	def type = ItemTypes.GOAL;
 
 	def int timeNeeded = 0;
@@ -15,6 +18,7 @@ public class GraphItem {
 	def int relativeWorth = 1;
 	def Date creationDate = null; // TODO
 	def Date lastUpdate = null; // TODO
+
 
 
 	def visitId; // transient
@@ -84,6 +88,7 @@ public class GraphItem {
 
 		def jstring = JsonOutput.toJson([id:id,
 																		 fullName:fullName,
+																		 url:url,
 																	 	 type:type.toString(),
 																	 	 complete:complete,
 																		 timeNeeded:timeNeeded,

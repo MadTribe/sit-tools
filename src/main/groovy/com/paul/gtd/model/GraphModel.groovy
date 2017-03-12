@@ -15,18 +15,22 @@ class GraphModel {
 		def sep = "";
 		sb << "\"relationships\" : [\n";
 		this.relationships.forEach{ rel ->
-			sb << sep;
-			 sb << rel.toJson();
-			 sep = ",\n";
+				if (!rel.deleted){
+					 sb << sep;
+					 sb << rel.toJson();
+					 sep = ",\n";
+			 }
 		}
 		sb << "],\n";
 
 		sep = "";
 		sb << "\"items\" : [\n";
 		this.items.forEach{ key , item ->
-			sb << sep;
-			 sb << item.toJson();
-			 sep = ",\n";
+			if (!item.deleted){
+			   sb << sep;
+				 sb << item.toJson();
+				 sep = ",\n";
+			 }
 		}
 		sb << "    ],\n";
 		sb << "\"settings\":";

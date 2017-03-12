@@ -4,6 +4,7 @@ package com.paul.gtd.model;
 		def from;
 		def to;
 		def type = RelationsTypes.NEEDS;
+		def boolean deleted = false;
 
 		Rel(from, to){
 			this.from = from;

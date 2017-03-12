@@ -235,6 +235,35 @@ public class SituationTools {
 
   }
 
+	def deleteNode(item, dataModel){
+			Display.prints("Deleting ${item}")
+			item.deleted = true;
+			item.outboundRelationships.each{ rel ->
+					Display.prints("Deleting ${rel}")
+					rel.deleted = true;
+			}
+
+			item.inboundRelationships.each{ rel ->
+					Display.prints("Deleting ${rel}")
+					rel.deleted = true;
+			}
+
+
+	}
+
+	def editNode(item, dataModel){
+			def name = Display.getInput("New Node Name: ${item.fullName}");
+			if (name != null && name != ""  ){
+				item.fullName = name;
+			}
+
+			name = Display.getInput("New url: ${item.url}");
+			if (name != null && name != ""  ){
+				item.url = name;
+			}
+	}
+
+
 	def workOnItem(item, dataModel){
     def space = "    ";
 		println """How about ${item.path()}?
@@ -248,6 +277,7 @@ ${space}(S)kip = I don't know or I'm not interested right now."""
 println """
 ${space}(D)one = Finished Already
 ${space}(E)xpand = I need to add some children to this.
+${space}(Ed)xpand = edit node.
 ${space}(L)ink = Link to other nodes
 ${space}(W)worth (relative) set relative worth of this.
 ${space}(R)eport print a summary Report.
@@ -284,6 +314,9 @@ ${space}(XX)delete = delete this item (not yet implemented).
 			 	   linkTask(item, dataModel);
 			 }
 
+			 if (option == "ed"){
+				 		editNode(item, dataModel);
+			 }
 
 			 if (option == "e"){
 						while (expandTask(item, dataModel)){
@@ -296,7 +329,12 @@ ${space}(XX)delete = delete this item (not yet implemented).
        }
 
 			 if (option == "xx"){
-						def confirm = Display.getInput("Are yoiu sure you want to delete ${item.path()}")
+						def confirm = Display.getInput("Are yoiu sure you want to delete ${item.path()}? (y/Y)")
+
+						if (confirm?.toLowerCase() == "y"){
+
+								deleteNode(item, dataModel);
+						}
 
 			 }
 		} else {

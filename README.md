@@ -22,3 +22,4 @@
 4. Add url to node
       - open node url in browser
       - add urls to svg output.
+gradle fatJar

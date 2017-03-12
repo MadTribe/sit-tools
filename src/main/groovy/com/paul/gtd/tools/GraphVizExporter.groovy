@@ -33,7 +33,12 @@ public class GraphVizExporter {
 			label += "  ${hoursToDuration(node.timeNeeded)}";
 		}
 
-		""" ${node.id} [shape=box, color=blue, style=filled, fillcolor="${color}",  label= "${label}" ];\n """
+		def hrefProp = "";
+		if (node.url){
+				hrefProp = """, href= "${node.url}" """;
+		}
+
+		""" ${node.id} [shape=box, color=blue, style=filled, fillcolor="${color}",  label= "${label}" ${hrefProp}];\n """
 	}
 
 	def createDotEdge(rel){
