@@ -1,7 +1,6 @@
-package com.paul.gtd.model;
-import groovy.json.JsonBuilder;
-import groovy.json.JsonOutput;
-import groovy.json.JsonSlurper;
+package com.paul.gtd.model
+
+import groovy.json.JsonOutput
 
 public class GraphItem {
 	private static int unique = 1;
@@ -16,8 +15,8 @@ public class GraphItem {
 	def boolean complete = false;
 	def boolean actionable = false;
 	def int relativeWorth = 1;
-	def Date creationDate = null; // TODO
-	def Date lastUpdate = null; // TODO
+	def Long creationDate = null; // TODO
+	def Long lastUpdate = null; // TODO
 
 
 
@@ -29,7 +28,10 @@ public class GraphItem {
 	def inboundRelationships = [];  // towards the root (transient)
 
 	def fixId(xid){
-		return xid.replaceAll(",","")
+		if (xid == null){
+			return "nullid";
+		}
+		return "_" + xid.replaceAll(",","")
 			 .replaceAll(" ","_")
 			 .replaceAll("'","_appo_")
 			 .replaceAll("\\/","_slash_")
@@ -85,6 +87,13 @@ public class GraphItem {
 
 
 	def toJson(){
+
+		if (creationDate == null){
+			creationDate = new Date().time;
+		}
+		if (lastUpdate == null){
+			lastUpdate = new Date().time;
+		}
 
 		def jstring = JsonOutput.toJson([id:id,
 																		 fullName:fullName,

@@ -14,6 +14,15 @@ import static com.paul.gtd.tools.Display.*;
 public class SituationTools {
 
 
+	public static final String DIG = "dig"
+	public static final String SAVE = "save"
+	public static final String PLAN = "plan"
+	public static final String TODO = "todo"
+	public static final String SIZE = "size"
+	public static final String IMAGE = "image"
+	public static final String FDP = "fdp"
+	public static final String WORK = "work"
+
 	def suggestNode(idName){
 		return  """
 			{
@@ -235,6 +244,22 @@ public class SituationTools {
 
   }
 
+
+	def touch(node){
+		long now = new Date().time;
+// code to  avoid cycles. Make sure the thing we are touching hasn't been touched very recently (within 20 ms)
+		if (now - node.lastUpdate > 20){
+			node.lastUpdate = new Date().time;
+			if (node.inboundRelationships.size  > 0 ) {
+				node.inboundRelationships.each { parent ->
+					touch(parent.from);
+				}
+			}
+		}
+
+	}
+
+
 	def deleteNode(item, dataModel){
 			Display.prints("Deleting ${item}")
 			item.deleted = true;
@@ -277,11 +302,12 @@ ${space}(S)kip = I don't know or I'm not interested right now."""
 println """
 ${space}(D)one = Finished Already
 ${space}(E)xpand = I need to add some children to this.
-${space}(Ed)xpand = edit node.
+${space}(Ed)dit = edit node.
 ${space}(L)ink = Link to other nodes
 ${space}(W)worth (relative) set relative worth of this.
 ${space}(R)eport print a summary Report.
 ${space}(Q)uit = quit this item.
+${space}(T)ouch = touch. 
 ${space}(XX)delete = delete this item (not yet implemented).
 		"""
 
@@ -317,6 +343,10 @@ ${space}(XX)delete = delete this item (not yet implemented).
 			 if (option == "ed"){
 				 		editNode(item, dataModel);
 			 }
+
+			if (option == "t"){
+				touch(item);
+			}
 
 			 if (option == "e"){
 						while (expandTask(item, dataModel)){
@@ -473,6 +503,7 @@ ${space}(XX)delete = delete this item (not yet implemented).
 				prints "n) narrative"
 				prints "image) net";
 				prints "dig) digraph";
+				prints "gantt) gantt";
 				prints "q) quit"
 
 
@@ -511,14 +542,19 @@ ${space}(XX)delete = delete this item (not yet implemented).
 					narrativePlan(dataModel);
 				}
 
-				if (option.toLowerCase() == "image"){
+				if (option.toLowerCase() == IMAGE){
 					def graphVizExporter = new GraphVizExporter();
   				graphVizExporter.generateDigraphFromDot(dataModel);
   			}
 
-        if (option.toLowerCase() == "dig"){
+        	if (option.toLowerCase() == DIG){
 					def graphVizExporter = new GraphVizExporter();
   				graphVizExporter.generateDigraphFromDot(dataModel);
+  			}
+
+			if (option.toLowerCase() == "gantt"){
+				def ganttExporter = new GanttExporter();
+  				ganttExporter.saveAsTJ(dataModel);
   			}
 
         if (option.toLowerCase() == "q"){
@@ -557,6 +593,7 @@ ${space}(XX)delete = delete this item (not yet implemented).
 	}
 
   public static void main(String[] args){
+	println "hello"
   	try {
 			def tools = new SituationTools();
 			def reader = new DataReader();
@@ -582,45 +619,47 @@ ${space}(XX)delete = delete this item (not yet implemented).
   			tools.printMissingNodes(dataModel);
 
 				if (Context.commandOptions.contains("int")){
-  				Context.commandOptions.add("save")
+  				Context.commandOptions.add(SAVE)
   				tools.interactive(dataModel);
   			}
 
-  			if (Context.commandOptions.contains("work")){
-  				Context.commandOptions.add("save")
+  			if (Context.commandOptions.contains(WORK)){
+  				Context.commandOptions.add(SAVE)
   				tools.workMode(dataModel);
   			}
 
-				if (Context.commandOptions.contains("plan")){
-  				Context.commandOptions.add("save")
+			if (Context.commandOptions.contains(PLAN)){
+  				Context.commandOptions.add(SAVE)
   				tools.planMode(dataModel);
   			}
 
-				if (Context.commandOptions.contains("todo")) {
-						Context.commandOptions.add("save")
+				if (Context.commandOptions.contains(TODO)) {
+						Context.commandOptions.add(SAVE)
 						tools.toDoList(dataModel)
 				}
 
-  			if (Context.commandOptions.contains("size")){
-  				Context.commandOptions.add("save")
+  			if (Context.commandOptions.contains(SIZE)){
+  				Context.commandOptions.add(SAVE)
   				tools.improveEstimates(dataModel);
   			}
 
-  			if (Context.commandOptions.contains("save")){
+  			if (Context.commandOptions.contains(SAVE)){
+				dataModel["fileName"] = inputFileName;
+				println "saving " + dataModel + " " + inputFileName;
   				reader.save(dataModel );
   			}
 
-  			if (Context.commandOptions.contains("image")){
+  			if (Context.commandOptions.contains(IMAGE)){
 					def graphVizExporter = new GraphVizExporter();
   				graphVizExporter.generateDigraphFromDot(dataModel);
   			}
 
-        if (Context.commandOptions.contains("dig")){
+			if (Context.commandOptions.contains(DIG)){		
 					def graphVizExporter = new GraphVizExporter();
   				graphVizExporter.generateDigraphFromDot(dataModel);
   			}
 
-        if (Context.commandOptions.contains("fdp")){
+        	if (Context.commandOptions.contains(FDP)){
 					def graphVizExporter = new GraphVizExporter();
 
 
@@ -649,7 +688,7 @@ ${space}(XX)delete = delete this item (not yet implemented).
 					fdp  - non directed graph image
 					work - work mode
 					plan - plan mode
-					int  - interactuve mode
+					int  - interactive mode
 					init - create empty file
 					todo - prints todo list
 	""";

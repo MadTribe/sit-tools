@@ -5,7 +5,7 @@ import com.paul.gtd.tools.jira.*;
 import static com.paul.gtd.tools.Time.*;
 import com.paul.gtd.model.*;
 
-public class HSBCAnalysis {
+public class TasksAnalysis {
 
 		public static void main(String[] args){
 			if (args.length > 0){

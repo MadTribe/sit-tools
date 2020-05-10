@@ -14,6 +14,8 @@ public class DataReader {
   }
 
   def save(GraphModel model) {
+    println model
+    println model.fileName
     def file = new File(model.fileName);
     def path = file.getParentFile().getPath();
     String timestamp = new Date().format( 'yyyy-MM-dd_hh_mm_ss');

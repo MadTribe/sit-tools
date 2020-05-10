@@ -1,10 +1,15 @@
-package com.paul.gtd.tools;
-import static com.paul.gtd.tools.Time.*;
-import com.paul.gtd.model.*;
-import java.nio.file.*;
+package com.paul.gtd.tools
+
+import com.paul.gtd.model.ItemTypes
+
+import java.awt.*
+import java.nio.file.Files
+import java.nio.file.Paths
+
+import static com.paul.gtd.tools.Time.hoursToDuration;
 
 public class GraphVizExporter {
-	def nodeColor = null;
+
 
 	def fixText(xid){
 		return xid.replaceAll("\"","");
@@ -14,16 +19,12 @@ public class GraphVizExporter {
 	def createDotNode(node, dataModel){
 		def color = "#2597bf";
 
-		if (nodeColor == null){
-			if (node.type == ItemTypes.FINAL_GOAL){
-				color = "yellow";
-			}
-			if (node.complete){
-				color = "green";
-			}
+		if (node.type == ItemTypes.FINAL_GOAL){
+			color = "yellow";
+		} else if (node.complete){
+			color = "green";
 		} else {
-			color = nodeColor(node);
-
+			color = doNodeColor(node);
 		}
 
 		def label = "${fixText(node.fullName)}";
@@ -39,6 +40,61 @@ public class GraphVizExporter {
 		}
 
 		""" ${node.id} [shape=box, color=blue, style=filled, fillcolor="${color}",  label= "${label}" ${hrefProp}];\n """
+	}
+
+	String doNodeColor(node) {
+		Long now = new Date().time;
+		Long lastUpdate = node.lastUpdate;
+
+
+		if (lastUpdate == null){
+			return "green";
+		} else {
+			float daysSinceLastEdit = (now - lastUpdate) / (1000 * 60 * 60 * 24);
+println daysSinceLastEdit;
+			def col = getScaledColor([255,255,255], [249, 0,0],daysSinceLastEdit/5)
+			println col;
+			return encodeColor(col);
+		}
+
+	}
+
+	public static String encodeColor(colArray) {
+		Color color = new Color((int)colArray[0] , (int)colArray[1] , (int)colArray[2]);
+		return "#" + String.format("%06x", color.getRGB() & 0xffffff);
+
+	}
+
+	def getScaledColor(startCol, endCol,  fraction){
+        println "$startCol, $endCol, $fraction"
+		def ret = [0,0,0];
+
+		if (fraction > 1){
+			fraction = 1;
+		}
+
+		if (fraction < 0){
+			fraction = 0;
+		}
+
+		ret[0] = scaleNum(startCol[0], endCol[0], fraction);
+		ret[1] = scaleNum(startCol[1], endCol[1], fraction);
+		ret[2] = scaleNum(startCol[2], endCol[2], fraction);
+
+		return ret;
+	}
+
+	def float scaleNum(int start, int end,  fraction){
+		if (fraction > 1){
+			fraction = 1;
+		}
+
+		if (fraction < 0){
+			fraction = 0;
+		}
+
+		return ((end - start) * fraction) + start;
+
 	}
 
 	def createDotEdge(rel){
